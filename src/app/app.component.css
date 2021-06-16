@@ -1,0 +1,13 @@
+.container {
+display: flex;
+  justify-content: center;
+}
+.game-button {
+  height: 100px;
+  width: 100px;
+  border: 2px solid black;
+}
+.image {
+  height: 70px;
+  width: 70px;
+}
