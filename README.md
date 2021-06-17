@@ -1,1 +1,3 @@
-Tic Tac Toe simple implementation with WebSocket for educational purposes
+# TttFrontend
+
+Tic Tac Toe frontend simple implementation with WebSocket for educational purposes
