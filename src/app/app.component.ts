@@ -8,6 +8,8 @@ import {JoinRequest} from "./model/join-request";
 import {JoinResposne} from "./model/join-resposne";
 import {JoinGameDialogComponent} from "./join-game-dialog/join-game-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
+import {GameMove} from "./model/game-move";
+import {Reset} from "./model/reset";
 
 @Component({
   selector: 'app-root',
@@ -24,15 +26,15 @@ export class AppComponent implements OnInit {
   userName: string;
   connected: boolean = false;
   selectedUser: string;
-  // newInvitation: boolean = false;
   invitingUser: string;
+  disabled: boolean = true;
 
   constructor(private http: HttpClient, private changeDetection: ChangeDetectorRef, public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
     for (let i = 0; i < 9; i++) {
-      this.buttons.push(new Button(i, String(i)));
+      this.buttons.push(new Button(i, String(i), true));
     }
     console.log(this.buttons);
   }
@@ -69,6 +71,14 @@ export class AppComponent implements OnInit {
                 _this.joinResponseReceived(JSON.parse(output.body));
               });
 
+              _this.stompClient.subscribe('/user/queue/gamemovereceived', function (output) {
+                _this.gameMoveReceived(JSON.parse(output.body));
+              })
+
+              _this.stompClient.subscribe('/user/queue/reset', function (output) {
+                _this.reset(JSON.parse(output.body));
+              })
+
               _this.sendConnection();
               _this.connected = true;
             });
@@ -80,14 +90,27 @@ export class AppComponent implements OnInit {
 
   }
 
+
   joinRequestReceived(joinRequest: JoinRequest): void {
     this.invitingUser = joinRequest.invitingUser;
-    // this.newInvitation = true;
-    this.openDialog();
+    this.openDialog(this.invitingUser);
   }
 
   joinResponseReceived(joinResponse: JoinResposne) {
     console.log('Response from user ' + joinResponse.invitingUser + ': ' + joinResponse.decision);
+  }
+
+  reset(reset: Reset) {
+    console.log('from reset: ' + reset.disabled);
+    this.disabled = reset.disabled;
+    for(let i = 0; i < this.buttons.length; i++) {
+      this.buttons[i].disabled = reset.disabled;
+    }
+    this.changeDetection.detectChanges();
+  }
+
+  gameMoveReceived(gameMove: GameMove) {
+
   }
 
   disconnect() {
@@ -141,17 +164,17 @@ export class AppComponent implements OnInit {
 
   setLabelAndSendMove(number: number) {
     this.buttons[number].text = "clicked";
-    console.log('Number: ' + number);
-    console.log(this.buttons);
+    this.buttons[number].disabled = true;
     this.changeDetection.detectChanges();
   }
 
-  openDialog(): void {
+  openDialog(invitingUser: string): void {
     let dialogRef = this.dialog.open(JoinGameDialogComponent);
     dialogRef.afterClosed().subscribe(result => {
-      let joinResponse = new JoinResposne(this.invitingUser, this.userName, result.answer == 'yes');
+      let joinResponse = new JoinResposne(this.invitingUser, this.userName, result.answer);
       this.stompClient.send('/app/joinresponse', {userName: this.userName},
         JSON.stringify(joinResponse));
     });
   }
 }
+

@@ -31,13 +31,6 @@
           </div>
         </div>
 
-
-<!--        <div class="form-horizontal" *ngIf="newInvitation">-->
-<!--          <p>{{invitingUser}} wants to play, do you want to join?</p>-->
-<!--          <button class="btn btn-primary" (click)="join()">Yes</button>-->
-<!--          <button class="btn btn-primary" (click)="refuse()">No</button>-->
-<!--        </div>-->
-
       </div>
       <div class="mb-3" id="users" style="display: none;">
         <span id="active-users-span"></span>
@@ -49,30 +42,29 @@
     </div>
   </div>
 
-  <div class="btn-group container form-row" role="group">
-    <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[0]"
-            (click)="setLabelAndSendMove(0)">{{buttons[0].text}}</button>
-    <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[1]"
-            (click)="setLabelAndSendMove(1)">{{buttons[1].text}}</button>
-    <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[2]"
-            (click)="setLabelAndSendMove(2)">{{buttons[2].text}}</button>
-  </div>
+    <div class="btn-group container form-row" role="group">
+      <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[0]"
+              (click)="setLabelAndSendMove(0)" [disabled]="buttons[0].disabled && disabled">{{buttons[0].text}}</button>
+      <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[1]"
+              (click)="setLabelAndSendMove(1)" [disabled]="buttons[1].disabled && disabled">{{buttons[1].text}}</button>
+      <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[2]"
+              (click)="setLabelAndSendMove(2)" [disabled]="buttons[2].disabled && disabled">{{buttons[2].text}}</button>
+    </div>
 
-  <div class="btn-group container form-row" role="group">
-    <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[3]"
-            (click)="setLabelAndSendMove(3)">{{buttons[3].text}}</button>
-    <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[4]"
-            (click)="setLabelAndSendMove(4)">{{buttons[4].text}}</button>
-    <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[5]"
-            (click)="setLabelAndSendMove(5)">{{buttons[5].text}}</button>
-  </div>
-  <div class="btn-group container form-row" role="group">
-    <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[6]"
-            (click)="setLabelAndSendMove(6)">{{buttons[6].text}}</button>
-    <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[7]"
-            (click)="setLabelAndSendMove(7)">{{buttons[7].text}}</button>
-    <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[8]"
-            (click)="setLabelAndSendMove(8)">{{buttons[8].text}}</button>
-  </div>
-
+    <div class="btn-group container form-row" role="group">
+      <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[3]"
+              (click)="setLabelAndSendMove(3)" [disabled]="buttons[3].disabled && disabled">{{buttons[3].text}}</button>
+      <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[4]"
+              (click)="setLabelAndSendMove(4)" [disabled]="buttons[4].disabled && disabled">{{buttons[4].text}}</button>
+      <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[5]"
+              (click)="setLabelAndSendMove(5)" [disabled]="buttons[5].disabled && disabled">{{buttons[5].text}}</button>
+    </div>
+    <div class="btn-group container form-row" role="group">
+      <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[6]"
+              (click)="setLabelAndSendMove(6)" [disabled]="buttons[6].disabled && disabled">{{buttons[6].text}}</button>
+      <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[7]"
+              (click)="setLabelAndSendMove(7)" [disabled]="buttons[7].disabled && disabled">{{buttons[7].text}}</button>
+      <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[8]"
+              (click)="setLabelAndSendMove(8)" [disabled]="buttons[8].disabled && disabled">{{buttons[8].text}}</button>
+    </div>
 </div>
