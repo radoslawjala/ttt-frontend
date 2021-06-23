@@ -4,40 +4,27 @@
 </div>
 
 <div>
-  <div class="row">
-    <div class="col-md-6">
-      <div class="mb-3">
-        <div class="input-group">
-          <input type="text" id="from" class="form-control" placeholder="Choose a nickname" [(ngModel)]="userName"/>
-          <div class="btn-group">
-            <button type="button" id="connect" class="btn btn-sm btn-outline-secondary" (click)="connect()">Connect
-            </button>
-            <button type="button" id="disconnect" class="btn btn-sm btn-outline-secondary" (click)="disconnect()"
-            >Disconnect
-            </button>
-          </div>
-          <div *ngIf="userVerifiedSuccessfully; else userExists">
-            <p style="color: green">{{userInfo}}</p>
-          </div>
-          <ng-template #userExists>
-            <p style="color: red">{{userInfo}}</p>
-          </ng-template>
-        </div>
-
-        <div *ngIf="connected">
-          <div *ngFor="let user of usersList">
-            <button class="btn btn-primary" type="submit"
-                    (click)="connectWithSelectedUser(user)">Play with user {{user}}</button>
-          </div>
-        </div>
-
+  <div>
+    <div class="input-group center-elements">
+      <input type="text" id="from" class="form-control" placeholder="Choose a nickname" [(ngModel)]="userName"/>
+      <div class="btn-group">
+        <button type="button" id="connect" class="btn btn-sm btn-outline-secondary"
+                (click)="connect()">Connect</button>
+        <button type="button" id="disconnect" class="btn btn-sm btn-outline-secondary"
+                (click)="disconnect()">Disconnect</button>
       </div>
-      <div class="mb-3" id="users" style="display: none;">
-        <span id="active-users-span"></span>
-        <ul id="active-users" class="list-group list-group-horizontal-sm"></ul>
+      <div *ngIf="userVerifiedSuccessfully; else userExists">
+        <p style="color: green">{{userInfo}}</p>
       </div>
-      <div id="divSelectedUser" class="mb-3" style="display: none;">
-        <span id="selectedUser" class="badge badge-secondary"></span> Selected
+      <ng-template #userExists>
+        <p style="color: red">{{userInfo}}</p>
+      </ng-template>
+    </div>
+
+    <div class="input-group center-elements" *ngIf="connected">
+        <div *ngFor="let user of usersList">
+          <button  class="btn btn-primary" type="submit"
+                  (click)="connectWithSelectedUser(user)">Play with user {{user}}</button>
       </div>
     </div>
   </div>
@@ -67,4 +54,5 @@
       <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[8]"
               (click)="setLabelAndSendMove(8)" [disabled]="buttons[8].disabled && disabled">{{buttons[8].text}}</button>
     </div>
+
 </div>
