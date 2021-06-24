@@ -11,6 +11,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MoveSent} from "./model/move-sent";
 import {Reset} from "./model/reset";
 import {MoveReceived} from "./model/move-received";
+import {NegativeResponseDialogComponent} from "./negative-response-dialog/negative-response-dialog.component";
 
 @Component({
   selector: 'app-root',
@@ -30,6 +31,7 @@ export class AppComponent implements OnInit {
   invitingUser: string;
   enabled: boolean = true;
   whichTurn: string;
+  opponentName: string;
 
   constructor(private http: HttpClient, private changeDetection: ChangeDetectorRef, public dialog: MatDialog) {
   }
@@ -95,11 +97,13 @@ export class AppComponent implements OnInit {
 
   joinRequestReceived(joinRequest: JoinRequest): void {
     this.invitingUser = joinRequest.invitingUser;
-    this.openDialog();
+    this.openInvitationDialog();
   }
 
   joinResponseReceived(joinResponse: JoinResposne) {
-    console.log('Response from user ' + joinResponse.invitingUser + ': ' + joinResponse.decision);
+    if(joinResponse.decision == 'no') {
+      this.openNegativeResponseDialog();
+    }
   }
 
   reset(reset: Reset) {
@@ -120,9 +124,10 @@ export class AppComponent implements OnInit {
 
   moveReceived(move: MoveReceived) {
     console.log(move.text + " " + move.fieldNumber);
-    // this.buttons[move.fieldNumber].enabled = false;
-    // this.buttons[move.fieldNumber].text = move.text;
-    // this.changeDetection.detectChanges();
+    this.enabled = false;
+    this.buttons[move.fieldNumber].enabled = false;
+    this.buttons[move.fieldNumber].text = move.text;
+    this.changeDetection.detectChanges();
   }
 
   disconnect() {
@@ -182,13 +187,17 @@ export class AppComponent implements OnInit {
     this.stompClient.send('/app/sendMove', {userName: this.userName}, JSON.stringify(move))
   }
 
-  openDialog(): void {
+  openInvitationDialog(): void {
     let dialogRef = this.dialog.open(JoinGameDialogComponent, {data: { invitingUser: this.invitingUser}});
     dialogRef.afterClosed().subscribe(result => {
       let joinResponse = new JoinResposne(this.invitingUser, this.userName, result.answer);
       this.stompClient.send('/app/joinResponse', {userName: this.userName},
         JSON.stringify(joinResponse));
     });
+  }
+
+  openNegativeResponseDialog(): void {
+   this.dialog.open(NegativeResponseDialogComponent, {data: { invitedUser: this.selectedUser}});
   }
 }
 
