@@ -7,13 +7,13 @@ import {HttpClientModule} from "@angular/common/http";
 import {JoinGameDialogComponent} from './join-game-dialog/join-game-dialog.component';
 import {MatDialogModule} from "@angular/material/dialog";
 import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
-import { NegativeResponseDialogComponent } from './negative-response-dialog/negative-response-dialog.component';
+import { ResponseDialogComponent } from './negative-response-dialog/response-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     JoinGameDialogComponent,
-    NegativeResponseDialogComponent],
+    ResponseDialogComponent],
 
   imports: [
     BrowserModule,

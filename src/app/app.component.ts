@@ -11,7 +11,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MoveSent} from "./model/move-sent";
 import {Reset} from "./model/reset";
 import {MoveReceived} from "./model/move-received";
-import {NegativeResponseDialogComponent} from "./negative-response-dialog/negative-response-dialog.component";
+import {ResponseDialogComponent} from "./negative-response-dialog/response-dialog.component";
 
 @Component({
   selector: 'app-root',
@@ -101,9 +101,7 @@ export class AppComponent implements OnInit {
   }
 
   joinResponseReceived(joinResponse: JoinResposne) {
-    if(joinResponse.decision == 'no') {
-      this.openNegativeResponseDialog();
-    }
+    this.openNegativeResponseDialog(joinResponse.decision);
   }
 
   reset(reset: Reset) {
@@ -196,8 +194,10 @@ export class AppComponent implements OnInit {
     });
   }
 
-  openNegativeResponseDialog(): void {
-   this.dialog.open(NegativeResponseDialogComponent, {data: { invitedUser: this.selectedUser}});
+  openNegativeResponseDialog(decision: string): void {
+   this.dialog.open(ResponseDialogComponent, {data:
+       { invitedUser: this.selectedUser,
+       decision: decision}});
   }
 }
 
