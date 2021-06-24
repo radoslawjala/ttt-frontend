@@ -1,8 +1,8 @@
 export class Reset {
-  disabled: boolean;
+  enabled: boolean;
 
 
-  constructor(disabled: boolean) {
-    this.disabled = disabled;
+  constructor(enabled: boolean) {
+    this.enabled = enabled;
   }
 }

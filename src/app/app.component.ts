@@ -8,8 +8,9 @@ import {JoinRequest} from "./model/join-request";
 import {JoinResposne} from "./model/join-resposne";
 import {JoinGameDialogComponent} from "./join-game-dialog/join-game-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
-import {GameMove} from "./model/game-move";
+import {MoveSent} from "./model/move-sent";
 import {Reset} from "./model/reset";
+import {MoveReceived} from "./model/move-received";
 
 @Component({
   selector: 'app-root',
@@ -27,14 +28,15 @@ export class AppComponent implements OnInit {
   connected: boolean = false;
   selectedUser: string;
   invitingUser: string;
-  disabled: boolean = true;
+  enabled: boolean = true;
+  whichTurn: string;
 
   constructor(private http: HttpClient, private changeDetection: ChangeDetectorRef, public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
     for (let i = 0; i < 9; i++) {
-      this.buttons.push(new Button(i, String(i), true));
+      this.buttons.push(new Button(i, "", false));
     }
     console.log(this.buttons);
   }
@@ -63,20 +65,20 @@ export class AppComponent implements OnInit {
                 _this.updateUsers(_this.userName);
               });
 
-              _this.stompClient.subscribe('/user/queue/joinrequest', function (output) {
+              _this.stompClient.subscribe('/user/queue/joinRequest', function (output) {
                 _this.joinRequestReceived(JSON.parse(output.body));
               });
 
-              _this.stompClient.subscribe('/user/queue/joinresponse', function (output) {
+              _this.stompClient.subscribe('/user/queue/joinResponse', function (output) {
                 _this.joinResponseReceived(JSON.parse(output.body));
               });
 
-              _this.stompClient.subscribe('/user/queue/gamemovereceived', function (output) {
-                _this.gameMoveReceived(JSON.parse(output.body));
-              })
-
               _this.stompClient.subscribe('/user/queue/reset', function (output) {
                 _this.reset(JSON.parse(output.body));
+              })
+
+              _this.stompClient.subscribe('/user/queue/moveReceived', function (output) {
+                _this.moveReceived(JSON.parse(output.body));
               })
 
               _this.sendConnection();
@@ -93,7 +95,7 @@ export class AppComponent implements OnInit {
 
   joinRequestReceived(joinRequest: JoinRequest): void {
     this.invitingUser = joinRequest.invitingUser;
-    this.openDialog(this.invitingUser);
+    this.openDialog();
   }
 
   joinResponseReceived(joinResponse: JoinResposne) {
@@ -101,16 +103,26 @@ export class AppComponent implements OnInit {
   }
 
   reset(reset: Reset) {
-    console.log('from reset: ' + reset.disabled);
-    this.disabled = reset.disabled;
+    this.enabled = reset.enabled;
+
+    if(this.enabled) {
+      this.whichTurn = 'Your turn';
+    }
+    else {
+      this.whichTurn = '';
+    }
+
     for(let i = 0; i < this.buttons.length; i++) {
-      this.buttons[i].disabled = reset.disabled;
+      this.buttons[i].enabled = reset.enabled;
     }
     this.changeDetection.detectChanges();
   }
 
-  gameMoveReceived(gameMove: GameMove) {
-
+  moveReceived(move: MoveReceived) {
+    console.log(move.text + " " + move.fieldNumber);
+    // this.buttons[move.fieldNumber].enabled = false;
+    // this.buttons[move.fieldNumber].text = move.text;
+    // this.changeDetection.detectChanges();
   }
 
   disconnect() {
@@ -158,21 +170,23 @@ export class AppComponent implements OnInit {
 
     let joinRequest = new JoinRequest(this.userName, this.selectedUser);
 
-    this.stompClient.send('/app/joinrequest', {userName: this.userName},
+    this.stompClient.send('/app/joinRequest', {userName: this.userName},
       JSON.stringify(joinRequest));
   }
 
-  setLabelAndSendMove(number: number) {
-    this.buttons[number].text = "clicked";
-    this.buttons[number].disabled = true;
-    this.changeDetection.detectChanges();
+  sendMove(number: number) {
+    // this.buttons[number].text = "clicked";
+    // this.buttons[number].enabled = false;
+    // this.changeDetection.detectChanges();
+    let move = new MoveSent(number);
+    this.stompClient.send('/app/sendMove', {userName: this.userName}, JSON.stringify(move))
   }
 
-  openDialog(invitingUser: string): void {
-    let dialogRef = this.dialog.open(JoinGameDialogComponent);
+  openDialog(): void {
+    let dialogRef = this.dialog.open(JoinGameDialogComponent, {data: { invitingUser: this.invitingUser}});
     dialogRef.afterClosed().subscribe(result => {
       let joinResponse = new JoinResposne(this.invitingUser, this.userName, result.answer);
-      this.stompClient.send('/app/joinresponse', {userName: this.userName},
+      this.stompClient.send('/app/joinResponse', {userName: this.userName},
         JSON.stringify(joinResponse));
     });
   }

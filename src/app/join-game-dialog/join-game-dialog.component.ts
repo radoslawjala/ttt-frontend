@@ -6,10 +6,16 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
   templateUrl: './join-game-dialog.component.html',
   styleUrls: ['./join-game-dialog.component.css']
 })
-export class JoinGameDialogComponent {
+export class JoinGameDialogComponent implements OnInit{
+
+  invitingUser = '';
+
+  ngOnInit() {
+    this.invitingUser = this.data.invitingUser;
+  }
 
   constructor(public dialogRef: MatDialogRef<JoinGameDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) private data: any) { }
+              @Inject(MAT_DIALOG_DATA) public data: any) { }
 
   @Output() answerEvent = new EventEmitter<string>();
 

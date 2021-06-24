@@ -1,11 +1,11 @@
 export class Button {
   id: number;
   text: string;
-  disabled: boolean
+  enabled: boolean
 
-  constructor(id: number, text: string, disabled: boolean) {
+  constructor(id: number, text: string, enabled: boolean) {
     this.id = id;
     this.text = text;
-    this.disabled = disabled;
+    this.enabled = enabled;
   }
 }
