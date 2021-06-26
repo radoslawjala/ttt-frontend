@@ -29,16 +29,18 @@ export class AppComponent implements OnInit {
   connected: boolean = false;
   selectedUser: string;
   invitingUser: string;
-  enabled: boolean = true;
+  disabled: boolean = true;
   whichTurn: string;
   opponentName: string;
+  alreadySelected: boolean[] = [];
 
   constructor(private http: HttpClient, private changeDetection: ChangeDetectorRef, public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
     for (let i = 0; i < 9; i++) {
-      this.buttons.push(new Button(i, "", false));
+      this.buttons.push(new Button(i, "", true));
+      this.alreadySelected[i] = false;
     }
     console.log(this.buttons);
   }
@@ -101,13 +103,13 @@ export class AppComponent implements OnInit {
   }
 
   joinResponseReceived(joinResponse: JoinResposne) {
-    this.openNegativeResponseDialog(joinResponse.decision);
+    this.openResponseDialog(joinResponse.decision);
   }
 
   reset(reset: Reset) {
-    this.enabled = reset.enabled;
+    this.disabled = reset.disabled;
 
-    if(this.enabled) {
+    if(!this.disabled) {
       this.whichTurn = 'Your turn';
     }
     else {
@@ -115,15 +117,23 @@ export class AppComponent implements OnInit {
     }
 
     for(let i = 0; i < this.buttons.length; i++) {
-      this.buttons[i].enabled = reset.enabled;
+      this.buttons[i].disabled = reset.disabled;
+      this.alreadySelected[i] = false;
     }
+    this.opponentName = reset.opponentName;
+    console.log('my name: ' + this.userName + ', opponent name: ' + reset.opponentName);
     this.changeDetection.detectChanges();
   }
 
   moveReceived(move: MoveReceived) {
-    console.log(move.text + " " + move.fieldNumber);
-    this.enabled = false;
-    this.buttons[move.fieldNumber].enabled = false;
+    // this.disabled = !move.boardDisabled;
+    this.buttons[move.fieldNumber].disabled = true;
+    this.alreadySelected[move.fieldNumber] = true;
+    for(let i = 0; i < 9; i++) {
+      if(!this.alreadySelected[i]) {
+        this.buttons[i].disabled = move.boardDisabled;
+      }
+    }
     this.buttons[move.fieldNumber].text = move.text;
     this.changeDetection.detectChanges();
   }
@@ -179,9 +189,9 @@ export class AppComponent implements OnInit {
 
   sendMove(number: number) {
     // this.buttons[number].text = "clicked";
-    // this.buttons[number].enabled = false;
+    // this.buttons[number].disabled = false;
     // this.changeDetection.detectChanges();
-    let move = new MoveSent(number);
+    let move = new MoveSent(number, this.opponentName);
     this.stompClient.send('/app/sendMove', {userName: this.userName}, JSON.stringify(move))
   }
 
@@ -194,7 +204,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  openNegativeResponseDialog(decision: string): void {
+  openResponseDialog(decision: string): void {
    this.dialog.open(ResponseDialogComponent, {data:
        { invitedUser: this.selectedUser,
        decision: decision}});

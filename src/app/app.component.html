@@ -31,28 +31,28 @@
 
     <div class="btn-group container form-row" role="group">
       <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[0]"
-              (click)="sendMove(0)" [disabled]="!(buttons[0].enabled && enabled)">{{buttons[0].text}}</button>
+              (click)="sendMove(0)" [disabled]="buttons[0].disabled">{{buttons[0].text}}</button>
       <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[1]"
-              (click)="sendMove(1)" [disabled]="!(buttons[1].enabled && enabled)">{{buttons[1].text}}</button>
+              (click)="sendMove(1)" [disabled]="buttons[1].disabled">{{buttons[1].text}}</button>
       <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[2]"
-              (click)="sendMove(2)" [disabled]="!(buttons[2].enabled && enabled)">{{buttons[2].text}}</button>
+              (click)="sendMove(2)" [disabled]="buttons[2].disabled">{{buttons[2].text}}</button>
     </div>
 
     <div class="btn-group container form-row" role="group">
       <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[3]"
-              (click)="sendMove(3)" [disabled]="!(buttons[3].enabled && enabled)">{{buttons[3].text}}</button>
+              (click)="sendMove(3)" [disabled]="buttons[3].disabled">{{buttons[3].text}}</button>
       <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[4]"
-              (click)="sendMove(4)" [disabled]="!(buttons[4].enabled && enabled)">{{buttons[4].text}}</button>
+              (click)="sendMove(4)" [disabled]="buttons[4].disabled">{{buttons[4].text}}</button>
       <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[5]"
-              (click)="sendMove(5)" [disabled]="!(buttons[5].enabled && enabled)">{{buttons[5].text}}</button>
+              (click)="sendMove(5)" [disabled]="buttons[5].disabled">{{buttons[5].text}}</button>
     </div>
     <div class="btn-group container form-row" role="group">
       <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[6]"
-              (click)="sendMove(6)" [disabled]="!(buttons[6].enabled && enabled)">{{buttons[6].text}}</button>
+              (click)="sendMove(6)" [disabled]="buttons[6].disabled">{{buttons[6].text}}</button>
       <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[7]"
-              (click)="sendMove(7)" [disabled]="!(buttons[7].enabled && enabled)">{{buttons[7].text}}</button>
+              (click)="sendMove(7)" [disabled]="buttons[7].disabled">{{buttons[7].text}}</button>
       <button type="button" ngDefaultControl class="btn game-button" [(ngModel)]="buttons[8]"
-              (click)="sendMove(8)" [disabled]="!(buttons[8].enabled && enabled)">{{buttons[8].text}}</button>
+              (click)="sendMove(8)" [disabled]="buttons[8].disabled">{{buttons[8].text}}</button>
     </div>
 
   <p class="input-group center-elements margins">{{whichTurn}}</p>

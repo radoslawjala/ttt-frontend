@@ -16,7 +16,7 @@ export class ResponseDialogComponent implements OnInit {
 
   ngOnInit(): void {
     if(this.data.decision == 'yes') {
-      this.responseText = 'User ' + this.data.invitedUser + ' wants to play!';
+      this.responseText = 'User ' + this.data.invitedUser + ' agreed to play!';
     } else {
       this.responseText = 'User ' + this.data.invitedUser + ' refused to play, sorry :(';
     }

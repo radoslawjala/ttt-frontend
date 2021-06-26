@@ -1,9 +1,9 @@
 export class Reset {
-  enabled: boolean;
+  disabled: boolean;
   opponentName: string;
 
-  constructor(enabled: boolean, opponentName: string) {
-    this.enabled = enabled;
+  constructor(disabled: boolean, opponentName: string) {
+    this.disabled = disabled;
     this.opponentName = opponentName;
   }
 }
