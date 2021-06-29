@@ -12,6 +12,8 @@ import {MoveSent} from "./model/move-sent";
 import {Reset} from "./model/reset";
 import {MoveReceived} from "./model/move-received";
 import {ResponseDialogComponent} from "./negative-response-dialog/response-dialog.component";
+import {GameResult} from "./model/game-result";
+import {GameResultDialogComponent} from "./game-result-dialog/game-result-dialog.component";
 
 @Component({
   selector: 'app-root',
@@ -30,7 +32,7 @@ export class AppComponent implements OnInit {
   selectedUser: string;
   invitingUser: string;
   disabled: boolean = true;
-  whichTurn: string;
+  whoseTurn: string;
   opponentName: string;
   alreadySelected: boolean[] = [];
 
@@ -85,6 +87,10 @@ export class AppComponent implements OnInit {
                 _this.moveReceived(JSON.parse(output.body));
               })
 
+              _this.stompClient.subscribe('/user/queue/gameResult', function (output) {
+                _this.gameResult(JSON.parse(output.body));
+              })
+
               _this.sendConnection();
               _this.connected = true;
             });
@@ -106,14 +112,24 @@ export class AppComponent implements OnInit {
     this.openResponseDialog(joinResponse.decision);
   }
 
+  gameResult(gameResult: GameResult) {
+    this.openResultDialog(gameResult.winner);
+    for(let i = 0; i < 9; i++) {
+      this.buttons[i].disabled = true;
+      this.buttons[i].text = '';
+      this.alreadySelected[i] = false;
+      this.whoseTurn = '';
+    }
+  }
+
   reset(reset: Reset) {
     this.disabled = reset.disabled;
 
     if(!this.disabled) {
-      this.whichTurn = 'Your turn';
+      this.whoseTurn = 'Your turn';
     }
     else {
-      this.whichTurn = '';
+      this.whoseTurn = '';
     }
 
     for(let i = 0; i < this.buttons.length; i++) {
@@ -126,7 +142,6 @@ export class AppComponent implements OnInit {
   }
 
   moveReceived(move: MoveReceived) {
-    // this.disabled = !move.boardDisabled;
     this.buttons[move.fieldNumber].disabled = true;
     this.alreadySelected[move.fieldNumber] = true;
     for(let i = 0; i < 9; i++) {
@@ -135,6 +150,11 @@ export class AppComponent implements OnInit {
       }
     }
     this.buttons[move.fieldNumber].text = move.text;
+    if(move.boardDisabled) {
+      this.whoseTurn = "";
+    } else {
+      this.whoseTurn = "Your turn"
+    }
     this.changeDetection.detectChanges();
   }
 
@@ -188,9 +208,6 @@ export class AppComponent implements OnInit {
   }
 
   sendMove(number: number) {
-    // this.buttons[number].text = "clicked";
-    // this.buttons[number].disabled = false;
-    // this.changeDetection.detectChanges();
     let move = new MoveSent(number, this.opponentName);
     this.stompClient.send('/app/sendMove', {userName: this.userName}, JSON.stringify(move))
   }
@@ -208,6 +225,13 @@ export class AppComponent implements OnInit {
    this.dialog.open(ResponseDialogComponent, {data:
        { invitedUser: this.selectedUser,
        decision: decision}});
+  }
+
+  openResultDialog(winner: string): void {
+    this.dialog.open(GameResultDialogComponent, {data: {
+      userName: this.userName,
+      winner: winner
+      }});
   }
 }
 

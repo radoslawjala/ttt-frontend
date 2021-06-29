@@ -8,12 +8,14 @@ import {JoinGameDialogComponent} from './join-game-dialog/join-game-dialog.compo
 import {MatDialogModule} from "@angular/material/dialog";
 import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
 import { ResponseDialogComponent } from './negative-response-dialog/response-dialog.component';
+import { GameResultDialogComponent } from './game-result-dialog/game-result-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     JoinGameDialogComponent,
-    ResponseDialogComponent],
+    ResponseDialogComponent,
+    GameResultDialogComponent],
 
   imports: [
     BrowserModule,
