@@ -1,7 +1,5 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {Button} from "./model/button";
-import {HttpClient} from "@angular/common/http";
-import {SimpleMessage} from "./model/simple-message";
 import * as SockJS from "sockjs-client";
 import {CompatClient, Stomp} from "@stomp/stompjs";
 import {JoinRequest} from "./model/join-request";
@@ -14,6 +12,7 @@ import {MoveReceived} from "./model/move-received";
 import {ResponseDialogComponent} from "./negative-response-dialog/response-dialog.component";
 import {GameResult} from "./model/game-result";
 import {GameResultDialogComponent} from "./game-result-dialog/game-result-dialog.component";
+import {HttpService} from "./services/http-service";
 
 @Component({
   selector: 'app-root',
@@ -36,7 +35,9 @@ export class AppComponent implements OnInit {
   opponentName: string;
   alreadySelected: boolean[] = [];
 
-  constructor(private http: HttpClient, private changeDetection: ChangeDetectorRef, public dialog: MatDialog) {
+  constructor(private httpService: HttpService,
+              private changeDetection: ChangeDetectorRef,
+              public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -53,47 +54,14 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    this.http.post<SimpleMessage>('http://localhost:8080/rest/user-connect', {username: this.userName})
+    this.httpService.connect(this.userName)
       .subscribe(data => {
           this.userInfo = data.text;
           this.userVerifiedSuccessfully = data.userVerifiedSuccessfully;
           if (!this.userVerifiedSuccessfully) {
             return;
           } else {
-            const socket = new SockJS('http://localhost:8080/game');
-            this.stompClient = Stomp.over(socket);
-            const _this = this;
-            this.stompClient.connect({username: _this.userName}, function (frame: string) {
-              console.log('Connected: ' + frame);
-
-              _this.stompClient.subscribe('/topic/active', function () {
-                console.log('wiadomosc z topic/active');
-                _this.updateUsers(_this.userName);
-              });
-
-              _this.stompClient.subscribe('/user/queue/joinRequest', function (output) {
-                _this.joinRequestReceived(JSON.parse(output.body));
-              });
-
-              _this.stompClient.subscribe('/user/queue/joinResponse', function (output) {
-                _this.joinResponseReceived(JSON.parse(output.body));
-              });
-
-              _this.stompClient.subscribe('/user/queue/reset', function (output) {
-                _this.reset(JSON.parse(output.body));
-              })
-
-              _this.stompClient.subscribe('/user/queue/moveReceived', function (output) {
-                _this.moveReceived(JSON.parse(output.body));
-              })
-
-              _this.stompClient.subscribe('/user/queue/gameResult', function (output) {
-                _this.gameResult(JSON.parse(output.body));
-              })
-
-              _this.sendConnection();
-              _this.connected = true;
-            });
+            this.setWebSocketConnection();
           }
         },
         err => {
@@ -102,6 +70,42 @@ export class AppComponent implements OnInit {
 
   }
 
+  setWebSocketConnection(): void {
+    const socket = new SockJS('http://localhost:8080/game');
+    this.stompClient = Stomp.over(socket);
+    const _this = this;
+    this.stompClient.connect({username: _this.userName}, function () {
+      // console.log('Connected: ' + frame);
+
+      _this.stompClient.subscribe('/topic/active', function () {
+        console.log('wiadomosc z topic/active');
+        _this.updateUsers(_this.userName);
+      });
+
+      _this.stompClient.subscribe('/user/queue/joinRequest', function (output) {
+        _this.joinRequestReceived(JSON.parse(output.body));
+      });
+
+      _this.stompClient.subscribe('/user/queue/joinResponse', function (output) {
+        _this.joinResponseReceived(JSON.parse(output.body));
+      });
+
+      _this.stompClient.subscribe('/user/queue/reset', function (output) {
+        _this.reset(JSON.parse(output.body));
+      })
+
+      _this.stompClient.subscribe('/user/queue/moveReceived', function (output) {
+        _this.moveReceived(JSON.parse(output.body));
+      })
+
+      _this.stompClient.subscribe('/user/queue/gameResult', function (output) {
+        _this.gameResult(JSON.parse(output.body));
+      })
+
+      _this.sendConnection();
+      _this.connected = true;
+    });
+  }
 
   joinRequestReceived(joinRequest: JoinRequest): void {
     this.invitingUser = joinRequest.invitingUser;
@@ -114,7 +118,7 @@ export class AppComponent implements OnInit {
 
   gameResult(gameResult: GameResult) {
     this.openResultDialog(gameResult.winner);
-    for(let i = 0; i < 9; i++) {
+    for (let i = 0; i < 9; i++) {
       this.buttons[i].disabled = true;
       this.buttons[i].text = '';
       this.alreadySelected[i] = false;
@@ -125,14 +129,13 @@ export class AppComponent implements OnInit {
   reset(reset: Reset) {
     this.disabled = reset.disabled;
 
-    if(!this.disabled) {
+    if (!this.disabled) {
       this.whoseTurn = 'Your turn';
-    }
-    else {
+    } else {
       this.whoseTurn = '';
     }
 
-    for(let i = 0; i < this.buttons.length; i++) {
+    for (let i = 0; i < this.buttons.length; i++) {
       this.buttons[i].disabled = reset.disabled;
       this.alreadySelected[i] = false;
     }
@@ -144,13 +147,13 @@ export class AppComponent implements OnInit {
   moveReceived(move: MoveReceived) {
     this.buttons[move.fieldNumber].disabled = true;
     this.alreadySelected[move.fieldNumber] = true;
-    for(let i = 0; i < 9; i++) {
-      if(!this.alreadySelected[i]) {
+    for (let i = 0; i < 9; i++) {
+      if (!this.alreadySelected[i]) {
         this.buttons[i].disabled = move.boardDisabled;
       }
     }
     this.buttons[move.fieldNumber].text = move.text;
-    if(move.boardDisabled) {
+    if (move.boardDisabled) {
       this.whoseTurn = "";
     } else {
       this.whoseTurn = "Your turn"
@@ -160,7 +163,7 @@ export class AppComponent implements OnInit {
 
   disconnect() {
     if (this.stompClient != null) {
-      this.http.post<string>('http://localhost:8080/rest/user-disconnect', {username: this.userName})
+      this.httpService.disconnect(this.userName)
         .subscribe(data => {
             console.log(data);
           },
@@ -183,14 +186,16 @@ export class AppComponent implements OnInit {
   }
 
   updateUsers(userName: string): void {
-    this.http.get<string[]>('http://localhost:8080/rest/active-users-except/' + userName).subscribe(data => {
-        this.usersList = data;
-        console.log('received data from updateUsers: ' + this.usersList);
-        this.changeDetection.detectChanges();
-      },
-      error => {
-        console.error('update user error: ' + error);
-      });
+    this.httpService.updateUsers(userName)
+      .subscribe(data => {
+          this.usersList = data;
+          console.log('received data from updateUsers: ' + this.usersList);
+          this.changeDetection.detectChanges();
+        },
+        error => {
+          console.error('update user error: ' + error);
+        }
+      );
   }
 
   sendConnection(): void {
@@ -213,7 +218,7 @@ export class AppComponent implements OnInit {
   }
 
   openInvitationDialog(): void {
-    let dialogRef = this.dialog.open(JoinGameDialogComponent, {data: { invitingUser: this.invitingUser}});
+    let dialogRef = this.dialog.open(JoinGameDialogComponent, {data: {invitingUser: this.invitingUser}});
     dialogRef.afterClosed().subscribe(result => {
       let joinResponse = new JoinResposne(this.invitingUser, this.userName, result.answer);
       this.stompClient.send('/app/joinResponse', {userName: this.userName},
@@ -222,16 +227,22 @@ export class AppComponent implements OnInit {
   }
 
   openResponseDialog(decision: string): void {
-   this.dialog.open(ResponseDialogComponent, {data:
-       { invitedUser: this.selectedUser,
-       decision: decision}});
+    this.dialog.open(ResponseDialogComponent, {
+      data:
+        {
+          invitedUser: this.selectedUser,
+          decision: decision
+        }
+    });
   }
 
   openResultDialog(winner: string): void {
-    this.dialog.open(GameResultDialogComponent, {data: {
-      userName: this.userName,
-      winner: winner
-      }});
+    this.dialog.open(GameResultDialogComponent, {
+      data: {
+        userName: this.userName,
+        winner: winner
+      }
+    });
   }
 }
 
